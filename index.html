@@ -19,7 +19,7 @@ overflow-x:hidden;
 
 h1{
 font-family:"Great Vibes",cursive;
-font-size:30px;
+font-size:28px;
 color:#c2185b;
 margin:15px;
 }
@@ -27,7 +27,7 @@ margin:15px;
 .step{display:none;padding:20px;}
 
 .card{
-background:rgba(255,255,255,0.7);
+background:rgba(255,255,255,0.75);
 border-radius:20px;
 padding:20px;
 margin:15px auto;
@@ -43,7 +43,7 @@ border-radius:25px;
 background:linear-gradient(135deg,#ff8fb1,#ffb3c7);
 color:white;
 font-weight:600;
-margin:10px;
+margin:8px;
 cursor:pointer;
 }
 
@@ -65,7 +65,6 @@ height:220px;
 border-radius:16px;
 }
 
-/* HEART RAIN */
 .heart{
 position:fixed;
 top:-10px;
@@ -85,7 +84,7 @@ to{transform:translateY(110vh);opacity:0;}
 <audio id="storySong" loop src="story-song.mp3"></audio>
 <audio id="hugSong" src="hug-song.mp3"></audio>
 
-<!-- LOCK SCREEN -->
+<!-- LOCK -->
 <div id="lock" style="height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
 <h1>Brewed With Love ☕❤️</h1>
 <input type="password" id="pw" placeholder="Password">
@@ -138,28 +137,31 @@ to{transform:translateY(110vh);opacity:0;}
 <h1>Coffee You ☕❤️</h1>
 <div class="card">
 There’s a very calm kind of strength in you — and it pulls people in without making noise. I admire that more than you realize. I’m honestly a little proud of you.<br><br>
-
 If liking you more every day is a crime — I’m not even trying to be innocent anymore.<br><br>
-
 Don’t worry, I’ll act normal… just don’t stand too close and smile. Then I’m not responsible. 😌☕
 </div>
-<button onclick="goToStep(5)">One Last Thing 🤍</button>
+<button onclick="startQuestions()">One Last Thing 🤍</button>
+</div>
+
+<!-- QUESTIONS -->
+<div class="step" id="s5">
+<h1>Just Answer Honestly ☕💘</h1>
+<div class="card">
+<p id="questionText"></p>
+<div id="optionsBox"></div>
+<p id="reaction" style="margin-top:10px;color:#c2185b;"></p>
+</div>
 </div>
 
 <!-- HUG -->
-<div class="step" id="s5">
+<div class="step" id="s6">
 <h1>Before this page ends — can I claim one honest, tight, stay-a-little-longer hug from you? 🤗❤️</h1>
 <div class="card">
 <button onclick="handleHug()">Come here</button>
 <button onclick="handleHug()">Tight hug</button>
-
 <div id="hugGifs" style="display:none;margin-top:15px;">
 <img src="hug1.gif" width="160">
 <img src="hug2.gif" width="160">
-</div>
-
-<div id="messageBox" style="display:none;margin-top:15px;">
-<textarea placeholder="Write anything you want..."></textarea>
 </div>
 </div>
 </div>
@@ -191,7 +193,6 @@ function playHug(){stopAll();hugSong.play();}
 
 /* UNLOCK */
 let attempt=0;
-
 function unlock(){
 let password=document.getElementById("pw").value.toLowerCase();
 let err=document.getElementById("err");
@@ -231,14 +232,12 @@ if(n===3) playStory();
 /* GAME */
 let catchCount=0;
 let heart;
-
 function setupGame(){
 catchCount=0;
 document.getElementById("gameNext").style.display="none";
 document.getElementById("gameMsg").innerText="";
 createHeart();
 }
-
 function createHeart(){
 const box=document.getElementById("gameBox");
 box.innerHTML="";
@@ -248,7 +247,6 @@ heart.style.position="absolute";
 heart.style.fontSize="28px";
 heart.style.cursor="pointer";
 moveHeart();
-
 heart.onclick=(e)=>{
 e.stopPropagation();
 catchCount++;
@@ -263,19 +261,55 @@ return;
 }
 moveHeart();
 };
-
 box.appendChild(heart);
 }
-
 function moveHeart(){
 const box=document.getElementById("gameBox");
-const maxX=box.clientWidth-40;
-const maxY=box.clientHeight-40;
-heart.style.left=Math.random()*maxX+"px";
-heart.style.top=Math.random()*maxY+"px";
+heart.style.left=Math.random()*(box.clientWidth-40)+"px";
+heart.style.top=Math.random()*(box.clientHeight-40)+"px";
 }
 
-/* EXACT FULL STORY */
+/* QUESTIONS */
+const questions=[
+{q:"Do you love me? ☕❤️", options:["Yes 😌","Too much 😏","More than coffee"]},
+{q:"Do you like me or like-like me? 😉", options:["Like-like 😌","Dangerously like","Can’t deny it"]},
+{q:"Do we have special memories? 💌", options:["Escalator forever","Butterflies always","Twinning supremacy"]},
+{q:"Will you be my Valentine? ☕💘", options:["Yes ❤️","Always","Forever yours"]}
+];
+
+let qIndex=0;
+function startQuestions(){
+goToStep(5);
+showQuestion();
+}
+function showQuestion(){
+if(qIndex>=questions.length){
+goToStep(6);
+return;
+}
+document.getElementById("questionText").innerText=questions[qIndex].q;
+const box=document.getElementById("optionsBox");
+box.innerHTML="";
+document.getElementById("reaction").innerText="";
+questions[qIndex].options.forEach(opt=>{
+let btn=document.createElement("button");
+btn.innerText=opt;
+btn.onclick=()=>{
+document.getElementById("reaction").innerText=
+"That answer… dangerously attractive 😌☕";
+setTimeout(()=>{qIndex++;showQuestion();},1000);
+};
+box.appendChild(btn);
+});
+}
+
+/* HUG */
+function handleHug(){
+playHug();
+document.getElementById("hugGifs").style.display="block";
+}
+
+/* EXACT STORY */
 document.getElementById("storyBox").innerHTML = `
 
 Our story<br><br>
@@ -317,15 +351,6 @@ isliye mere photos bhi daal diye 😂🙂‍↔️<br><br>
 
 I hope you like it ☕💌
 `;
-
-/* HUG */
-function handleHug(){
-playHug();
-document.getElementById("hugGifs").style.display="block";
-setTimeout(()=>{
-document.getElementById("messageBox").style.display="block";
-},1500);
-}
 
 </script>
 </body>
