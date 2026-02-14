@@ -1,32 +1,183 @@
-<script type="module">
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brewed With Love ☕❤️</title>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp }
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Great+Vibes&display=swap" rel="stylesheet">
 
-/* FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "AIzaSyBqFi6RqcBwlsom6COkOVwpkwywNX84zp0",
-  authDomain: "coffee-love-b2ae3.firebaseapp.com",
-  projectId: "coffee-love-b2ae3",
-  storageBucket: "coffee-love-b2ae3.firebasestorage.app",
-  messagingSenderId: "760304055514",
-  appId: "1:760304055514:web:d764d034c1c4e8f29821e3"
-};
+<style>
+body{
+margin:0;
+font-family:Poppins,sans-serif;
+background:linear-gradient(140deg,#ffd6e8,#ffe9d6,#fff3c8);
+color:#6b3e3e;
+text-align:center;
+overflow-x:hidden;
+}
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+h1{
+font-family:"Great Vibes",cursive;
+font-size:30px;
+color:#c2185b;
+margin:15px;
+}
+
+.step{display:none;padding:20px;}
+
+.card{
+background:rgba(255,255,255,0.7);
+border-radius:20px;
+padding:20px;
+margin:15px auto;
+width:92%;
+max-width:800px;
+box-shadow:0 10px 30px rgba(255,105,135,.25);
+}
+
+button{
+padding:12px 22px;
+border:none;
+border-radius:25px;
+background:linear-gradient(135deg,#ff8fb1,#ffb3c7);
+color:white;
+font-weight:600;
+margin:10px;
+cursor:pointer;
+}
+
+input,textarea{
+padding:12px;
+border-radius:18px;
+border:none;
+width:80%;
+max-width:300px;
+}
+
+.gallery{
+display:flex;
+overflow-x:auto;
+gap:12px;
+}
+.gallery img{
+height:220px;
+border-radius:16px;
+}
+
+/* HEART RAIN */
+.heart{
+position:fixed;
+top:-10px;
+color:#ff4f8b;
+animation:fall linear forwards;
+pointer-events:none;
+}
+@keyframes fall{
+to{transform:translateY(110vh);opacity:0;}
+}
+</style>
+</head>
+
+<body>
+
+<audio id="mainSong" loop src="main-song.mp3"></audio>
+<audio id="storySong" loop src="story-song.mp3"></audio>
+<audio id="hugSong" src="hug-song.mp3"></audio>
+
+<!-- LOCK SCREEN -->
+<div id="lock" style="height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+<h1>Brewed With Love ☕❤️</h1>
+<input type="password" id="pw" placeholder="Password">
+<button onclick="unlock()">Unlock</button>
+<p id="err"></p>
+</div>
+
+<div id="main" style="display:none;">
+
+<!-- GAME -->
+<div class="step" id="s1">
+<h1>Catch My Heart 💕</h1>
+<div class="card">
+<p>Catch the heart 5 times to unlock the next page 😌</p>
+<div id="gameBox" style="position:relative;height:300px;border-radius:16px;background:rgba(255,255,255,0.4);overflow:hidden;margin-top:15px;"></div>
+<p id="gameMsg"></p>
+</div>
+<button id="gameNext" style="display:none;" onclick="goToStep(2)">Next 🤍</button>
+</div>
+
+<!-- GALLERY -->
+<div class="step" id="s2">
+<h1>Our Memories ☕📸</h1>
+<div class="card">
+<div class="gallery">
+<img src="photo1.jpg">
+<img src="photo2.jpg">
+<img src="photo3.jpg">
+<img src="photo4.jpg">
+<img src="photo5.jpg">
+<img src="photo6.jpg">
+<img src="photo7.jpg">
+<img src="photo8.jpg">
+<img src="photo9.jpg">
+<img src="photo10.jpg">
+</div>
+</div>
+<button onclick="goToStep(3)">Next 💌</button>
+</div>
+
+<!-- STORY -->
+<div class="step" id="s3">
+<h1>Our Story ☕💌</h1>
+<div class="card" style="text-align:left;" id="storyBox"></div>
+<button onclick="goToStep(4)">Next 🤍</button>
+</div>
+
+<!-- PARAGRAPH -->
+<div class="step" id="s4">
+<h1>Coffee You ☕❤️</h1>
+<div class="card">
+There’s a very calm kind of strength in you — and it pulls people in without making noise. I admire that more than you realize. I’m honestly a little proud of you.<br><br>
+
+If liking you more every day is a crime — I’m not even trying to be innocent anymore.<br><br>
+
+Don’t worry, I’ll act normal… just don’t stand too close and smile. Then I’m not responsible. 😌☕
+</div>
+<button onclick="goToStep(5)">One Last Thing 🤍</button>
+</div>
+
+<!-- HUG -->
+<div class="step" id="s5">
+<h1>Before this page ends — can I claim one honest, tight, stay-a-little-longer hug from you? 🤗❤️</h1>
+<div class="card">
+<button onclick="handleHug()">Come here</button>
+<button onclick="handleHug()">Tight hug</button>
+
+<div id="hugGifs" style="display:none;margin-top:15px;">
+<img src="hug1.gif" width="160">
+<img src="hug2.gif" width="160">
+</div>
+
+<div id="messageBox" style="display:none;margin-top:15px;">
+<textarea placeholder="Write anything you want..."></textarea>
+</div>
+</div>
+</div>
+
+</div>
+
+<script>
 
 /* HEART RAIN */
 setInterval(()=>{
 let heart=document.createElement("div");
-heart.className="heartRain";
+heart.className="heart";
 heart.innerHTML="❤";
 heart.style.left=Math.random()*100+"vw";
 heart.style.animationDuration=(3+Math.random()*2)+"s";
 document.body.appendChild(heart);
 setTimeout(()=>heart.remove(),5000);
-},400);
+},500);
 
 /* MUSIC */
 const mainSong=document.getElementById("mainSong");
@@ -39,21 +190,21 @@ function playStory(){stopAll();storySong.play();}
 function playHug(){stopAll();hugSong.play();}
 
 /* UNLOCK */
-let wrongCount=0;
+let attempt=0;
 
-document.getElementById("unlockBtn").addEventListener("click",()=>{
-
-const pw=document.getElementById("pw").value.toLowerCase();
+function unlock(){
+let password=document.getElementById("pw").value.toLowerCase();
+let err=document.getElementById("err");
 
 const teasing=[
-"Wrong key… but the confidence? Attractive 😌☕",
-"Nope. But I like how determined you are 😏",
-"Close? Maybe. Try again, gentleman ☕😉",
-"If guessing was romance — you’d already win 💘",
-"Still wrong… but I admire the effort 😌"
+"Wrong password… but that confident typing? Attractive 😌☕",
+"Nope. Try again, Mr. Coffee Consultant 😉",
+"Hmm… not quite. But I love the effort 😏",
+"If guessing was romance, you'd already win my heart 💘",
+"Still wrong… but now I’m enjoying this game too much 😌"
 ];
 
-if(pw==="i coffee you"){
+if(password==="i coffee you"){
 document.getElementById("lock").style.display="none";
 document.getElementById("main").style.display="block";
 playMain();
@@ -62,32 +213,22 @@ setupGame();
 return;
 }
 
-wrongCount++;
-
-if(wrongCount<=teasing.length){
-document.getElementById("err").innerText=teasing[wrongCount-1];
+if(attempt<teasing.length){
+err.innerText=teasing[attempt];
 }else{
-document.getElementById("err").innerText="Hint: It’s what I feel + what you love ☕❤️";
+err.innerText="Final hint: It’s what I feel + what you love ☕❤️";
+}
+attempt++;
 }
 
-});
-
 /* PAGE CONTROL */
-let current=1;
-
 function goToStep(n){
 document.querySelectorAll(".step").forEach(s=>s.style.display="none");
 document.getElementById("s"+n).style.display="block";
-current=n;
 if(n===3) playStory();
 }
 
-document.getElementById("gameNext").onclick=()=>goToStep(2);
-document.getElementById("galleryNext").onclick=()=>goToStep(3);
-document.getElementById("storyNext").onclick=()=>goToStep(4);
-document.getElementById("paraNext").onclick=()=>goToStep(5);
-
-/* CATCH HEART GAME */
+/* GAME */
 let catchCount=0;
 let heart;
 
@@ -124,12 +265,6 @@ moveHeart();
 };
 
 box.appendChild(heart);
-
-box.onclick=()=>{
-const teasing=["Missed me 😌","Too slow 😉","Almost 😏","Try again 💕"];
-document.getElementById("gameMsg").innerText=
-teasing[Math.floor(Math.random()*teasing.length)];
-};
 }
 
 function moveHeart(){
@@ -140,35 +275,58 @@ heart.style.left=Math.random()*maxX+"px";
 heart.style.top=Math.random()*maxY+"px";
 }
 
-/* STORY INSERT */
-const fullStoryHTML = `Our story<br><br>
+/* EXACT FULL STORY */
+document.getElementById("storyBox").innerHTML = `
+
+Our story<br><br>
+
 Sab start hua tumhari us novel-type Tinder DP se — yellow wali with goggles — sach bolu to full love-at-first-sight wala scene ho gaya tha mera 😭<br><br>
+
 Phir bio dekha — “coffee consultant” — aur main boli, eyyy jaa beee sab tu hi kar lega kya 😭<br><br>
+
 Phir Insta stalk kiya… coffee, coffee, coffee… aur beech me ekdum kaatilana handsome barista 😭🫶<br>
 Tab to maine decide kar liya — ye londa to chahiye hi chahiye.<br>
 Aapka shy-pose wala photo mujhe sabse zyada pasand hai — jab humne ek dusre right swipe bhi nahi kiya tha tabse wo photos mere account me saved the.<br><br>
+
 Pehli nazar me aisa jaadu kar diya tumne,<br>
 ban baithe ho mera jiya 🙂‍↔️<br><br>
+
 Maine turant swipe right kiya — aur agar aap nahi karte na,<br>
 to sach me 10–12 account bana ke karwa leti 😭🫶<br><br>
+
 Phir mall me escalator pe jab first time real me dekha,<br>
 aur tumhari voice suni — butterflies hi butterflies 😭<br>
 Besttt feeling. No exaggeration.<br><br>
+
 Aur hamara twinning moment 😭<br>
 Main khud ko rok hi nahi payi — pehli meet me hi haath pakad ke chalne lagi jaise bohot pehle se jaanti hu.<br>
 Movie bhi waise hi dekhi — ek baar bhi nahi socha aap mere bare me kya sochoge.<br>
 First impression ka to satyanaash kar liya maine 😂<br><br>
+
 Mujhe pata hai first meet pe itna close hona normal nahi hota —<br>
 shayad ajeeb laga ho… but us moment dil ne bola — aap jaisa insaan phir nahi milega —<br>
 aur maine dil ki sun li.<br>
 Agar first impression thoda crazy gaya ho — I’m really sorry 😭🤍<br><br>
+
 Aur gallery me maine aapke close ones ko bhi add kiya hai —<br>
 kyunki unhi ke bare me mujhe pata hai, baaki logo ke bare me aapne bataya nahi 😌<br>
 To technically — they are your Valentine team now 😄<br><br>
+
 Aur haan — ye pura Valentine surprise site banai hai…<br>
 isliye mere photos bhi daal diye 😂🙂‍↔️<br><br>
-I hope you like it ☕💌`;
 
-document.getElementById("storyBox").innerHTML=fullStoryHTML;
+I hope you like it ☕💌
+`;
+
+/* HUG */
+function handleHug(){
+playHug();
+document.getElementById("hugGifs").style.display="block";
+setTimeout(()=>{
+document.getElementById("messageBox").style.display="block";
+},1500);
+}
 
 </script>
+</body>
+</html>
