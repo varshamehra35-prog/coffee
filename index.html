@@ -1,0 +1,174 @@
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp }
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyBqFi6RqcBwlsom6COkOVwpkwywNX84zp0",
+  authDomain: "coffee-love-b2ae3.firebaseapp.com",
+  projectId: "coffee-love-b2ae3",
+  storageBucket: "coffee-love-b2ae3.firebasestorage.app",
+  messagingSenderId: "760304055514",
+  appId: "1:760304055514:web:d764d034c1c4e8f29821e3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* HEART RAIN */
+setInterval(()=>{
+let heart=document.createElement("div");
+heart.className="heartRain";
+heart.innerHTML="❤";
+heart.style.left=Math.random()*100+"vw";
+heart.style.animationDuration=(3+Math.random()*2)+"s";
+document.body.appendChild(heart);
+setTimeout(()=>heart.remove(),5000);
+},400);
+
+/* MUSIC */
+const mainSong=document.getElementById("mainSong");
+const storySong=document.getElementById("storySong");
+const hugSong=document.getElementById("hugSong");
+
+function stopAll(){mainSong.pause();storySong.pause();hugSong.pause();}
+function playMain(){stopAll();mainSong.play();}
+function playStory(){stopAll();storySong.play();}
+function playHug(){stopAll();hugSong.play();}
+
+/* UNLOCK */
+let wrongCount=0;
+
+document.getElementById("unlockBtn").addEventListener("click",()=>{
+
+const pw=document.getElementById("pw").value.toLowerCase();
+
+const teasing=[
+"Wrong key… but the confidence? Attractive 😌☕",
+"Nope. But I like how determined you are 😏",
+"Close? Maybe. Try again, gentleman ☕😉",
+"If guessing was romance — you’d already win 💘",
+"Still wrong… but I admire the effort 😌"
+];
+
+if(pw==="i coffee you"){
+document.getElementById("lock").style.display="none";
+document.getElementById("main").style.display="block";
+playMain();
+goToStep(1);
+setupGame();
+return;
+}
+
+wrongCount++;
+
+if(wrongCount<=teasing.length){
+document.getElementById("err").innerText=teasing[wrongCount-1];
+}else{
+document.getElementById("err").innerText="Hint: It’s what I feel + what you love ☕❤️";
+}
+
+});
+
+/* PAGE CONTROL */
+let current=1;
+
+function goToStep(n){
+document.querySelectorAll(".step").forEach(s=>s.style.display="none");
+document.getElementById("s"+n).style.display="block";
+current=n;
+if(n===3) playStory();
+}
+
+document.getElementById("gameNext").onclick=()=>goToStep(2);
+document.getElementById("galleryNext").onclick=()=>goToStep(3);
+document.getElementById("storyNext").onclick=()=>goToStep(4);
+document.getElementById("paraNext").onclick=()=>goToStep(5);
+
+/* CATCH HEART GAME */
+let catchCount=0;
+let heart;
+
+function setupGame(){
+catchCount=0;
+document.getElementById("gameNext").style.display="none";
+document.getElementById("gameMsg").innerText="";
+createHeart();
+}
+
+function createHeart(){
+const box=document.getElementById("gameBox");
+box.innerHTML="";
+heart=document.createElement("div");
+heart.innerText="💖";
+heart.style.position="absolute";
+heart.style.fontSize="28px";
+heart.style.cursor="pointer";
+moveHeart();
+
+heart.onclick=(e)=>{
+e.stopPropagation();
+catchCount++;
+document.getElementById("gameMsg").innerText=
+"Okay okay… smooth move 😏 ("+catchCount+"/5)";
+if(catchCount>=5){
+document.getElementById("gameMsg").innerText=
+"You caught my heart… officially yours now 💘";
+document.getElementById("gameNext").style.display="inline-block";
+box.innerHTML="";
+return;
+}
+moveHeart();
+};
+
+box.appendChild(heart);
+
+box.onclick=()=>{
+const teasing=["Missed me 😌","Too slow 😉","Almost 😏","Try again 💕"];
+document.getElementById("gameMsg").innerText=
+teasing[Math.floor(Math.random()*teasing.length)];
+};
+}
+
+function moveHeart(){
+const box=document.getElementById("gameBox");
+const maxX=box.clientWidth-40;
+const maxY=box.clientHeight-40;
+heart.style.left=Math.random()*maxX+"px";
+heart.style.top=Math.random()*maxY+"px";
+}
+
+/* STORY INSERT */
+const fullStoryHTML = `Our story<br><br>
+Sab start hua tumhari us novel-type Tinder DP se — yellow wali with goggles — sach bolu to full love-at-first-sight wala scene ho gaya tha mera 😭<br><br>
+Phir bio dekha — “coffee consultant” — aur main boli, eyyy jaa beee sab tu hi kar lega kya 😭<br><br>
+Phir Insta stalk kiya… coffee, coffee, coffee… aur beech me ekdum kaatilana handsome barista 😭🫶<br>
+Tab to maine decide kar liya — ye londa to chahiye hi chahiye.<br>
+Aapka shy-pose wala photo mujhe sabse zyada pasand hai — jab humne ek dusre right swipe bhi nahi kiya tha tabse wo photos mere account me saved the.<br><br>
+Pehli nazar me aisa jaadu kar diya tumne,<br>
+ban baithe ho mera jiya 🙂‍↔️<br><br>
+Maine turant swipe right kiya — aur agar aap nahi karte na,<br>
+to sach me 10–12 account bana ke karwa leti 😭🫶<br><br>
+Phir mall me escalator pe jab first time real me dekha,<br>
+aur tumhari voice suni — butterflies hi butterflies 😭<br>
+Besttt feeling. No exaggeration.<br><br>
+Aur hamara twinning moment 😭<br>
+Main khud ko rok hi nahi payi — pehli meet me hi haath pakad ke chalne lagi jaise bohot pehle se jaanti hu.<br>
+Movie bhi waise hi dekhi — ek baar bhi nahi socha aap mere bare me kya sochoge.<br>
+First impression ka to satyanaash kar liya maine 😂<br><br>
+Mujhe pata hai first meet pe itna close hona normal nahi hota —<br>
+shayad ajeeb laga ho… but us moment dil ne bola — aap jaisa insaan phir nahi milega —<br>
+aur maine dil ki sun li.<br>
+Agar first impression thoda crazy gaya ho — I’m really sorry 😭🤍<br><br>
+Aur gallery me maine aapke close ones ko bhi add kiya hai —<br>
+kyunki unhi ke bare me mujhe pata hai, baaki logo ke bare me aapne bataya nahi 😌<br>
+To technically — they are your Valentine team now 😄<br><br>
+Aur haan — ye pura Valentine surprise site banai hai…<br>
+isliye mere photos bhi daal diye 😂🙂‍↔️<br><br>
+I hope you like it ☕💌`;
+
+document.getElementById("storyBox").innerHTML=fullStoryHTML;
+
+</script>
